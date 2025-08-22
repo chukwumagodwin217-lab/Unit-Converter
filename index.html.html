@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative World - Unit Converter</title>
+  <style>
+    body {
+      height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f115f9, #a100f2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .converter {
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 280px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .converter h3 {
+      margin-bottom: 12px;
+      font-size: 20px;
+      color: #1e293b;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .row label {
+      font-size: 14px;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .converter select,
+    .converter input {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+      transition: 0.3s;
+    }
+    .converter select:focus,
+    .converter input:focus {
+      border-color: #a100f2;
+      box-shadow: 0 0 5px rgba(161, 0, 242, 0.5);
+      outline: none;
+    }
+    .converter button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #a100f2, #f115f9);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 10px rgba(241, 21, 249, 0.4);
+    }
+    .converter button:hover {
+      box-shadow: 0 0 20px rgba(241, 21, 249, 0.8);
+      transform: scale(1.05);
+    }
+    .result {
+      font-size: 16px;
+      margin-top: 12px;
+      color: #1e293b;
+      background: #f9fafb;
+      padding: 10px;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="converter">
+    <h3>Unit Converter</h3>
+    <input type="number" id="inputValue" placeholder="Enter value">
+
+    <div class="row">
+      <label for="type">Type</label>
+      <select id="type" onchange="updateUnits()">
+        <option value="length">Length</option>
+        <option value="weight">Weight</option>
+        <option value="temperature">Temperature</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Convert</label>
+      <select id="fromUnit"></select>
+      <span style="font-size: 14px; color: #555;">to</span>
+      <select id="toUnit"></select>
+    </div>
+
+    <button onclick="convert()">Convert</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const unitOptions = {
+      length: ["meters", "kilometers", "miles"],
+      weight: ["grams", "kilograms", "pounds"],
+      temperature: ["celsius", "fahrenheit", "kelvin"]
+    };
+
+    function updateUnits() {
+      let type = document.getElementById("type").value;
+      let fromUnit = document.getElementById("fromUnit");
+      let toUnit = document.getElementById("toUnit");
+      fromUnit.innerHTML = "";
+      toUnit.innerHTML = "";
+      unitOptions[type].forEach(unit => {
+        fromUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+        toUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+      });
+    }
+
+    function convert() {
+      let value = parseFloat(document.getElementById("inputValue").value);
+      let type = document.getElementById("type").value;
+      let from = document.getElementById("fromUnit").value;
+      let to = document.getElementById("toUnit").value;
+      let resultText = "";
+
+      if (isNaN(value)) {
+        resultText = "Please enter a value!";
+      } else {
+        let result = 0;
+        if (type === "length") {
+          let toMeters = { meters: 1, kilometers: 1000, miles: 1609.34 };
+          result = value * toMeters[from] / toMeters[to];
+        } else if (type === "weight") {
+          let toGrams = { grams: 1, kilograms: 1000, pounds: 453.592 };
+          result = value * toGrams[from] / toGrams[to];
+        } else if (type === "temperature") {
+          if (from === "celsius" && to === "fahrenheit") result = (value * 9/5) + 32;
+          else if (from === "fahrenheit" && to === "celsius") result = (value - 32) * 5/9;
+          else if (from === "celsius" && to === "kelvin") result = value + 273.15;
+          else if (from === "kelvin" && to === "celsius") result = value - 273.15;
+          else if (from === "fahrenheit" && to === "kelvin") result = (value - 32) * 5/9 + 273.15;
+          else if (from === "kelvin" && to === "fahrenheit") result = (value - 273.15) * 9/5 + 32;
+          else result = value;
+        }
+        resultText = `${value} ${from} = ${result.toFixed(2)} ${to}`;
+      }
+
+      let resultDiv = document.getElementById("result");
+      resultDiv.innerText = resultText;
+      resultDiv.classList.add("show");
+    }
+
+    updateUnits();
+  </script>
+</body>
+</html>
